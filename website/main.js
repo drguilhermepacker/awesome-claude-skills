@@ -7,15 +7,21 @@
 (function () {
   "use strict";
 
-  /* ---- Lucide icons (CDN). Hydrate once the UMD bundle is ready. ---- */
+  /* ---- Lucide icons (CDN). Hydrate once the UMD bundle is ready. ----
+     Cap the retries so a failed CDN load (offline, adblock, downtime)
+     doesn't poll forever and drain CPU/battery. ~50 × 40ms ≈ 2s. */
+  var hydrateRetries = 0;
   function hydrateIcons() {
     if (window.lucide && typeof window.lucide.createIcons === "function") {
       window.lucide.createIcons({ attrs: { "stroke-width": 1.75 } });
-    } else {
+    } else if (hydrateRetries < 50) {
+      hydrateRetries++;
       setTimeout(hydrateIcons, 40);
     }
   }
   hydrateIcons();
+
+  var prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ---- Toast ---- */
   var toastEl = document.getElementById("toast");
@@ -46,7 +52,7 @@
       var target = document.getElementById(id);
       if (target) {
         e.preventDefault();
-        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        target.scrollIntoView({ behavior: prefersReduced ? "auto" : "smooth", block: "start" });
       }
     });
   });
@@ -54,7 +60,9 @@
   /* highlight the section currently in view */
   var sectionIds = ["Sobre", "Especialidade", "Risco", "FAQ", "Contato"];
   var inlineNav = Array.prototype.slice.call(document.querySelectorAll(".site-nav a[href^='#']"));
+  var activeTicking = false;
   function setActive() {
+    activeTicking = false;
     var pos = window.scrollY + 120;
     var current = "";
     sectionIds.forEach(function (id) {
@@ -66,7 +74,13 @@
       a.classList.toggle("active", a.getAttribute("href") === "#" + current);
     });
   }
-  window.addEventListener("scroll", setActive, { passive: true });
+  /* Throttle to one layout read per frame to avoid scroll-time thrashing. */
+  window.addEventListener("scroll", function () {
+    if (!activeTicking) {
+      activeTicking = true;
+      window.requestAnimationFrame(setActive);
+    }
+  }, { passive: true });
   setActive();
 
   /* ---- Demo links / WhatsApp FAB fire a toast (no real nav) ---- */
@@ -101,6 +115,7 @@
 
   if (calcBtn) {
     calcBtn.addEventListener("click", function () {
+      if (!age || !sys || !smoker || !resultNum || !resultBand || !resultBox) return;
       var a = +age.value, s = +sys.value;
       var r = 0.6 * Math.pow(a / 40, 3.0) * Math.pow(Math.max(90, s) / 120, 2.2);
       if (smoker.checked) r *= 1.8;

@@ -5,7 +5,9 @@
    (tokens/colors.css, typography.css, spacing.css, fonts.css).
    ============================================================ */
 
-@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap");
+/* Google Fonts are loaded via <link> tags in index.html <head> (with
+   preconnect) for better performance — not @import'd here, which would
+   serialize the stylesheet + font download chain. */
 
 :root {
   /* ---- Verde (forest green) scale ---- */
