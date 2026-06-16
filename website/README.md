@@ -45,6 +45,24 @@ python3 -m http.server 8000
 - **No emoji**, per brand. Gold is the single accent; status colors appear only inside
   the clinical widget.
 
+## Deploy (Vercel)
+
+This folder is a static site — no build step. To deploy it on Vercel:
+
+1. Import the repo as a new Vercel project.
+2. Set **Root Directory = `website`** and Framework Preset = **Other**. This is
+   important: it makes Vercel serve *only* this folder. Deploying from the repo
+   root would publish the entire skills catalog at your domain.
+3. Deploy — Vercel serves `index.html` at `/`.
+
+`vercel.json` (in this folder) sets sensible production defaults: immutable
+caching for `assets/`, clean URLs, and basic security headers. It is read only
+when Root Directory is `website`, and it does **not** replace step 2.
+
+To put it on a custom domain, add the domain under the project's **Settings →
+Domains** and apply the DNS records Vercel shows. Pointing an existing domain
+here moves it off whatever project currently serves it.
+
 ## Source of truth
 
 The design references the production Next.js app at
