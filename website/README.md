@@ -55,8 +55,9 @@ This folder is a static site — no build step. To deploy it on Vercel:
    root would publish the entire skills catalog at your domain.
 3. Deploy — Vercel serves `index.html` at `/`.
 
-`vercel.json` (in this folder) sets sensible production defaults: immutable
-caching for `assets/`, clean URLs, and basic security headers. It is read only
+`vercel.json` (in this folder) sets sensible production defaults: optimized
+caching for `assets/` (short max-age with `stale-while-revalidate`, so updated
+images still propagate), clean URLs, and basic security headers. It is read only
 when Root Directory is `website`, and it does **not** replace step 2.
 
 To put it on a custom domain, add the domain under the project's **Settings →
